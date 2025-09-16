@@ -24,9 +24,10 @@ The keyboard icon in the top right will open a menu showing you the avaliable ho
 
 <br>
 <br>
-https://buymeacoffee.com/berrnberrn
 <br>
 
 <h6 align="center">
+  https://buymeacoffee.com/berrnberrn
+  <br>
   Note: This application is not affiliated with or endorsed by Spotify. Spotify is a registered trademark of Spotify AB.
 </h6>
