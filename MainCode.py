@@ -20,7 +20,6 @@ import keyboard
 import tempfile
 
 
-# Generate or load encryption key
 def get_encryption_key():
     key_file = "spotify_key.key"
     if os.path.exists(key_file):
@@ -33,7 +32,6 @@ def get_encryption_key():
         return key
 
 
-# Encrypt/decrypt functions
 def encrypt_data(data, key):
     fernet = Fernet(key)
     return fernet.encrypt(pickle.dumps(data))
@@ -44,12 +42,10 @@ def decrypt_data(encrypted_data, key):
     return pickle.loads(fernet.decrypt(encrypted_data))
 
 
-# Check if credentials exist
 def credentials_exist():
     return os.path.exists("spotify_credentials.enc")
 
 
-# Load credentials
 def load_credentials():
     encryption_key = get_encryption_key()
     try:
@@ -60,7 +56,6 @@ def load_credentials():
         return None
 
 
-# Save credentials
 def save_credentials(client_id, client_secret):
     encryption_key = get_encryption_key()
     data = {"client_id": client_id, "client_secret": client_secret}
@@ -80,21 +75,15 @@ class SetupWizard:
         self.setup_gui()
 
     def setup_gui(self):
-        # Main frame
         main_frame = tk.Frame(self.root, bg="#121212", padx=20, pady=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Left side - Instructions
         instructions_frame = tk.Frame(main_frame, bg="#121212", width=250)
         instructions_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 20))
-
         tk.Label(instructions_frame, text="Setup Instructions", font=("Helvetica", 14, "bold"),
-                 bg="#121212", fg="#1DB954").pack(anchor="w", pady=(0, 10))
-
-        # Scrollable instructions
+        bg="#121212", fg="#1DB954").pack(anchor="w", pady=(0, 10))
         instructions_text = scrolledtext.ScrolledText(instructions_frame, width=30, height=15,
-                                                      bg="#282828", fg="white", font=("Helvetica", 9),
-                                                      relief=tk.FLAT, borderwidth=1)
+        bg="#282828", fg="white", font=("Helvetica", 9),
+        relief=tk.FLAT, borderwidth=1)
         instructions_text.pack(fill=tk.BOTH, expand=True)
 
         instructions = """
@@ -122,14 +111,12 @@ You only need to do this setup once!
         instructions_text.insert(tk.END, instructions)
         instructions_text.config(state=tk.DISABLED)
 
-        # Right side - Credential input
         input_frame = tk.Frame(main_frame, bg="#121212", width=250)
         input_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         tk.Label(input_frame, text="Enter Credentials", font=("Helvetica", 14, "bold"),
                  bg="#121212", fg="#1DB954").pack(anchor="w", pady=(0, 20))
 
-        # Client ID
         tk.Label(input_frame, text="Client ID:", bg="#121212", fg="white",
                  font=("Helvetica", 10)).pack(anchor="w", pady=(0, 5))
         self.client_id_var = tk.StringVar()
@@ -138,7 +125,6 @@ You only need to do this setup once!
                                    relief=tk.FLAT, font=("Helvetica", 10))
         client_id_entry.pack(fill=tk.X, pady=(0, 15))
 
-        # Client Secret
         tk.Label(input_frame, text="Client Secret:", bg="#121212", fg="white",
                  font=("Helvetica", 10)).pack(anchor="w", pady=(0, 5))
         self.client_secret_var = tk.StringVar()
@@ -147,21 +133,17 @@ You only need to do this setup once!
                                        show="*", relief=tk.FLAT, font=("Helvetica", 10))
         client_secret_entry.pack(fill=tk.X, pady=(0, 20))
 
-        # Check button
         check_btn = tk.Button(input_frame, text="Check Details", command=self.check_credentials,
                               bg="#1DB954", fg="white", font=("Helvetica", 10, "bold"),
                               relief=tk.FLAT, padx=20, pady=8)
         check_btn.pack(pady=(0, 10))
 
-        # Status label
         self.status_label = tk.Label(input_frame, text="", bg="#121212", fg="#B3B3B3",
                                      font=("Helvetica", 9))
         self.status_label.pack()
 
-        # Focus on first entry
         client_id_entry.focus()
 
-        # Bind Enter key to check credentials
         client_secret_entry.bind('<Return>', lambda e: self.check_credentials())
 
     def check_credentials(self):
@@ -175,7 +157,6 @@ You only need to do this setup once!
         self.status_label.config(text="Checking credentials...", fg="#1DB954")
         self.root.update()
 
-        # Test credentials by trying to get an access token
         try:
             auth_str = f"{client_id}:{client_secret}"
             auth_b64 = base64.b64encode(auth_str.encode()).decode()
@@ -193,7 +174,6 @@ You only need to do this setup once!
                                      headers=headers, data=data)
 
             if response.status_code == 200:
-                # Credentials are valid
                 save_credentials(client_id, client_secret)
                 self.status_label.config(text="Credentials saved successfully!", fg="#1DB954")
                 self.root.after(1000, self.close_wizard)
@@ -205,7 +185,6 @@ You only need to do this setup once!
 
     def close_wizard(self):
         self.root.destroy()
-        # Restart the main application
         os.execv(sys.executable, ['python'] + sys.argv)
 
 
@@ -245,7 +224,6 @@ class SpotifyController:
         self.is_hidden = False
         self.auth_server = None
 
-        # Remove window decorations and set always on top
         self.root.overrideredirect(True)
         self.root.attributes('-topmost', True)
 
@@ -253,20 +231,15 @@ class SpotifyController:
         self.setup_global_hotkeys()
         self.authenticate()
 
-        # Bind focus events
         self.root.bind('<FocusIn>', self.on_focus_in)
         self.root.bind('<FocusOut>', self.on_focus_out)
 
     def setup_global_hotkeys(self):
         """Set up global hotkeys using keyboard library"""
         try:
-            # Play/Pause
             keyboard.add_hotkey('ctrl+shift+p', self.toggle_playback, suppress=True)
-            # Next track
             keyboard.add_hotkey('ctrl+shift+]', self.next_track, suppress=True)
-            # Previous track
             keyboard.add_hotkey('ctrl+shift+[', self.previous_track, suppress=True)
-            # Hide window
             keyboard.add_hotkey('ctrl+shift+h', self.toggle_window_visibility, suppress=True)
         except Exception as e:
             print(f"Hotkey setup error: {e}")
@@ -284,64 +257,48 @@ class SpotifyController:
         self.root.configure(bg="#121212")
         self.root.geometry("230x490")
 
-        # Custom fonts
         self.title_font = font.Font(family="Helvetica", size=12, weight="bold")
         self.normal_font = font.Font(family="Helvetica", size=10)
         self.small_font = font.Font(family="Helvetica", size=9)
         self.tiny_font = font.Font(family="Helvetica", size=8)
-
-        # Main container
         self.main_container = tk.Frame(self.root, bg="#121212")
         self.main_container.pack(fill=tk.BOTH, expand=True)
-
-        # Expanded view (full size)
         self.expanded_frame = tk.Frame(self.main_container, bg="#121212")
 
-        # Header with drag area
         header_frame = tk.Frame(self.expanded_frame, bg="#121212", height=30, cursor="fleur")
         header_frame.pack(fill=tk.X, pady=(0, 10))
         header_frame.pack_propagate(False)
-
-        # Add drag functionality
         header_frame.bind("<ButtonPress-1>", self.start_move)
         header_frame.bind("<ButtonRelease-1>", self.stop_move)
         header_frame.bind("<B1-Motion>", self.on_motion)
 
         tk.Label(header_frame, text="🎵 Spotify", font=self.title_font,
-                 bg="#121212", fg="white").pack(side=tk.LEFT, padx=10)
-
-        # Hotkey info
+        bg="#121212", fg="white").pack(side=tk.LEFT, padx=10)
         hotkey_label = tk.Label(header_frame, text="⌨️", font=self.small_font,
-                                bg="#121212", fg="#B3B3B3", cursor="hand2")
+        bg="#121212", fg="#B3B3B3", cursor="hand2")
         hotkey_label.pack(side=tk.RIGHT, padx=5)
         hotkey_label.bind("<Button-1>", self.show_hotkey_help)
 
-        # Close button
         close_btn = tk.Label(header_frame, text="✕", font=self.normal_font,
-                             bg="#121212", fg="#B3B3B3", cursor="hand2")
+        bg="#121212", fg="#B3B3B3", cursor="hand2")
         close_btn.pack(side=tk.RIGHT, padx=10)
         close_btn.bind("<Button-1>", lambda e: self.cleanup_and_exit())
 
-        # Now Playing Section
         now_playing_frame = tk.Frame(self.expanded_frame, bg="#121212", padx=15, pady=15)
         now_playing_frame.pack(fill=tk.X, pady=(0, 15))
 
-        # Album art
         self.album_art_label = tk.Label(now_playing_frame, bg="#282828", width=80, height=80,
-                                        text="No\nImage", font=self.normal_font, fg="#B3B3B3",
-                                        justify=tk.CENTER)
+        text="No\nImage", font=self.normal_font, fg="#B3B3B3",justify=tk.CENTER)
         self.album_art_label.pack(pady=(0, 15))
 
-        # Track info
         self.track_label = tk.Label(now_playing_frame, text="Please authenticate",
-                                    font=self.title_font, bg="#121212", fg="white", wraplength=200)
+        font=self.title_font, bg="#121212", fg="white", wraplength=200)
         self.track_label.pack()
 
         self.artist_label = tk.Label(now_playing_frame, text="Connect to Spotify to begin",
-                                     font=self.small_font, bg="#121212", fg="#B3B3B3", wraplength=200)
+        font=self.small_font, bg="#121212", fg="#B3B3B3", wraplength=200)
         self.artist_label.pack(pady=(5, 0))
 
-        # Progress bar section with click functionality
         progress_container = tk.Frame(now_playing_frame, bg="#121212")
         progress_container.pack(fill=tk.X, pady=(15, 10))
 
@@ -349,12 +306,10 @@ class SpotifyController:
                                    bg="#121212", fg="#B3B3B3", width=4)
         self.time_start.pack(side=tk.LEFT)
 
-        # Clickable progress bar
         self.progress_bar = ttk.Progressbar(progress_container, orient=tk.HORIZONTAL,
                                             length=120, mode='determinate')
         self.progress_bar.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
 
-        # Bind click events to progress bar
         self.progress_bar.bind("<ButtonPress-1>", self.start_progress_drag)
         self.progress_bar.bind("<ButtonRelease-1>", self.end_progress_drag)
         self.progress_bar.bind("<B1-Motion>", self.on_progress_drag)
@@ -367,11 +322,9 @@ class SpotifyController:
                                      font=self.small_font, bg="#121212", fg="#E22134")
         self.status_label.pack(pady=(5, 10))
 
-        # Controls Section
         controls_frame = tk.Frame(self.expanded_frame, bg="#121212")
         controls_frame.pack(pady=(0, 15))
 
-        # Control buttons
         button_style = {
             'bg': '#282828', 'fg': 'white', 'font': self.normal_font,
             'border': 0, 'padx': 15, 'pady': 8, 'width': 3,
@@ -390,12 +343,9 @@ class SpotifyController:
         self.next_btn = tk.Button(buttons_frame, text="⏭", command=self.next_track, **button_style)
         self.next_btn.pack(side=tk.LEFT, padx=3)
 
-
-        # Hide hotkey label
         tk.Label(controls_frame, text="Ctrl+Shift+H to hide", font=self.tiny_font,
                  bg="#121212", fg="#B3B3B3").pack(pady=(5, 0))
 
-        # Volume control
         volume_frame = tk.Frame(controls_frame, bg="#121212")
         volume_frame.pack(pady=(10, 0))
 
@@ -410,7 +360,6 @@ class SpotifyController:
 
         tk.Label(volume_frame, text="🔊", bg="#121212", fg="white", font=self.small_font).pack(side=tk.LEFT)
 
-        # Status bar
         status_bar = tk.Frame(self.expanded_frame, bg="#282828", height=25)
         status_bar.pack(fill=tk.X, side=tk.BOTTOM)
         status_bar.pack_propagate(False)
@@ -420,19 +369,12 @@ class SpotifyController:
         self.connection_status.pack(side=tk.LEFT, padx=10)
         self.connection_status.bind("<Button-1>", lambda e: self.authenticate())
 
-        # Collapsed view (mini player)
         self.collapsed_frame = tk.Frame(self.main_container, bg="#121212", height=90)
-
-        # Mini player layout
         mini_container = tk.Frame(self.collapsed_frame, bg="#121212", padx=10, pady=10)
         mini_container.pack(fill=tk.BOTH, expand=True)
-
-        # Album art mini
         self.album_art_mini = tk.Label(mini_container, bg="#282828", width=40, height=40,
                                        text="🎵", font=("Helvetica", 16), fg="#B3B3B3")
         self.album_art_mini.pack(side=tk.LEFT, padx=(0, 10))
-
-        # Track info mini
         info_frame = tk.Frame(mini_container, bg="#121212")
         info_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -443,19 +385,11 @@ class SpotifyController:
         self.artist_mini = tk.Label(info_frame, text="", font=self.tiny_font,
                                     bg="#121212", fg="#B3B3B3", anchor="w")
         self.artist_mini.pack(fill=tk.X)
-
-        # Progress bar mini
         self.progress_mini = ttk.Progressbar(info_frame, orient=tk.HORIZONTAL,
                                              length=80, mode='determinate')
         self.progress_mini.pack(fill=tk.X, pady=(5, 0))
-
-        # Show expanded view initially
         self.expanded_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Style configuration
         self.configure_styles()
-
-        # Start update loop
         self.update_playback_info()
 
     def cleanup_and_exit(self):
@@ -537,8 +471,6 @@ class SpotifyController:
     def seek_to_position(self, x_pos):
         if not self.access_token:
             return
-
-        # Calculate position based on click location
         progress_width = self.progress_bar.winfo_width()
         if progress_width > 0:
             position_percent = min(max(x_pos / progress_width, 0), 1)
@@ -546,8 +478,6 @@ class SpotifyController:
             if playback and playback.get('item'):
                 duration_ms = playback['item']['duration_ms']
                 position_ms = int(position_percent * duration_ms)
-
-                # Seek to position
                 self.make_request("PUT", f"/me/player/seek?position_ms={position_ms}")
 
     def on_focus_in(self, event):
@@ -564,12 +494,8 @@ class SpotifyController:
 
         self.animating = True
         self.is_expanded = True
-
-        # Switch frames immediately
         self.collapsed_frame.pack_forget()
         self.expanded_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Smooth but non-blocking animation
         current_height = 90
         target_height = 490
 
@@ -592,12 +518,8 @@ class SpotifyController:
 
         self.animating = True
         self.is_expanded = False
-
-        # Switch frames immediately
         self.expanded_frame.pack_forget()
         self.collapsed_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Smooth but non-blocking animation
         current_height = 490
         target_height = 90
 
@@ -637,7 +559,6 @@ class SpotifyController:
         return self.auth_server
 
     def authenticate(self):
-        # Check if we already have a valid token
         if self.access_token and self.token_expiry and time.time() < self.token_expiry:
             return
 
@@ -655,14 +576,12 @@ class SpotifyController:
             f"&scope=user-read-playback-state user-modify-playback-state"
             f"&state=12345"
         )
-
-        # Only open browser if we don't have a token
         if not self.access_token:
             webbrowser.open(auth_url)
 
         def check_auth():
             start_time = time.time()
-            while server.auth_code is None and time.time() - start_time < 30:  # 30 second timeout
+            while server.auth_code is None and time.time() - start_time < 30:
                 time.sleep(0.5)
 
             server.shutdown()
@@ -714,7 +633,6 @@ class SpotifyController:
             return None
 
         if time.time() > self.token_expiry:
-            # Token expired, try to reauthenticate
             self.authenticate()
             return None
 
@@ -793,20 +711,13 @@ class SpotifyController:
         if self.access_token and not self.animating:
             playback = self.get_current_playback()
             if playback:
-                # Update track info
                 if playback.get('item'):
                     track_name = playback['item']['name']
                     artists = ", ".join([artist['name'] for artist in playback['item']['artists']])
-
-                    # Update expanded view
                     self.track_label.config(text=track_name)
                     self.artist_label.config(text=artists)
-
-                    # Update collapsed view
                     self.track_mini.config(text=track_name)
                     self.artist_mini.config(text=artists)
-
-                    # Update album art
                     if playback['item']['album']['images']:
                         image_url = playback['item']['album']['images'][0]['url']
                         album_image = self.load_image_from_url(image_url)
@@ -818,7 +729,6 @@ class SpotifyController:
                             self.album_art_label.config(image="", text="No\nImage")
                             self.album_art_mini.config(image="", text="🎵")
 
-                # Update progress bars
                 if playback.get('progress_ms') and playback.get('item') and not self.is_dragging_progress:
                     progress = playback['progress_ms']
                     duration = playback['item']['duration_ms']
@@ -829,24 +739,17 @@ class SpotifyController:
 
                     self.time_start.config(text=self.format_time(progress))
                     self.time_end.config(text=self.format_time(duration))
-
-                # Update playback status
                 is_playing = playback.get('is_playing', False)
                 status_text = "▶️ Playing" if is_playing else "⏸️ Paused"
                 self.status_label.config(text=status_text, fg="#1DB954" if is_playing else "#B3B3B3")
-
-        # Schedule next update with longer interval to reduce load
         self.root.after(3000, self.update_playback_info)
 
 
 def main():
-    # Check if credentials exist, if not show setup wizard
     if not credentials_exist():
         root = tk.Tk()
         wizard = SetupWizard(root)
         root.mainloop()
-
-    # Now start the main application
     root = tk.Tk()
     app = SpotifyController(root)
 
@@ -857,4 +760,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
