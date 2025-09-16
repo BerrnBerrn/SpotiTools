@@ -24,6 +24,7 @@ The keyboard icon in the top right will open a menu showing you the avaliable ho
 
 <br>
 <br>
+https://buymeacoffee.com/berrnberrn
 <br>
 
 <h6 align="center">
