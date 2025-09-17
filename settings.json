@@ -1,0 +1,10 @@
+{
+  "hotkeys": {
+    "play_pause": "ctrl+shift+p",
+    "next_track": "ctrl+shift+]",
+    "previous_track": "ctrl+shift+[",
+    "hide_window": "ctrl+shift+h"
+  },
+  "update_interval": 3000,
+  "always_on_top": true
+}
