@@ -8,7 +8,7 @@ An extra utility app for Spotify. It is aimed for improving the Spotify experien
 ENSURE PYTHON IS INSTALLED
 1. Install the newest realease
 2. Extract the zip
-3. Open SpotiTools.exe
+3. Open MainCode.exe
 4. Follow the initial setup instructions
 5. Enjoy
 
