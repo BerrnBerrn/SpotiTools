@@ -2,7 +2,7 @@
 <p align="center">
   <img width="512" align="center" height="512" alt="SpotiTools" src="https://github.com/user-attachments/assets/88aac265-958b-404d-950a-54ef1049c0be" />
 </p>
-An extra utility app for Spotify. It is aimed for improving the Spotify experience adding key binds for pausing and more + a visual, current song window. (May require Spotify premium to be used fully)
+An extra utility app for Spotify. It is aimed for improving the Spotify experience adding key binds for pausing and more + a visual, current song window. You are also able to control spotify that is playing on any device, such as a phone, from your laptop/computer. (May require Spotify premium to be used fully)
 
 # INSTALLATION
 ENSURE PYTHON IS INSTALLED
